@@ -1,75 +1,42 @@
 /**
  * New node file
+ *
  */
 
-var doc = {
-        "_id" : 20,
-        "name" : "Tressa Schwing",
-        "scores" : [
-                {
-                        "type" : "exam",
-                        "score" : 42.17439799514388
-                },
-                {
-                        "score" : 71.99314840599558,
-                        "type" : "quiz"
-                },
-                {
-                        "type" : "homework",
-                        "score" : 81.23972632069464
-                },
-                {
-                        "type" : "homework",
-                        "score" : 48.33010230766873
-                }
-        ]
-}
+var MongoClient = require('mongodb').MongoClient;
+MongoClient.connect('mongodb://localhost:27017/school', function (err, db) {
+	if(err) throw err;
+	var state = "";
+	var data = db.collection('students');
+	var cursor = data.find({});
 
-var scores = doc.scores;
+	cursor.each(function(err, doc) {
+		if(err) throw err;
+		if(doc==null ){
+			return db.close();	
+		}
+		
+		var index = getIndex(doc.scores);
+		
+		console.log(index);
+		
+		if (index != -1) {
+			doc.scores.splice(index, 1);
+			
+			db.collection('students').save(doc, function(err, saved){
+				console.dir("succesfull saved "+ saved + "document");
+			});	
+			
+		}
+		
+		
 
-var index = getIndex(scores);
+			
+	});
+			
+});
 
-
-if (index != -1) {
-	scores.splice(index, 1);
-}
-
-console.log(index);
-	
-//console.log(minScore);
-
-console.log(scores);
-
-
-
-
-//var scores  = doc.scores;
-//var minScore = 200;
-//var index = -1;
-//
-//for(var i= 0; i< scores.length; i++){
-//	
-//	if (scores[i].type == "homework"  ){
-//       
-//		
-//		if ( scores[i].score  < minScore  ) {
-//			index = i;
-//	        minScore = scores[i].score;
-//		}
-//        
-//		
-//		//console.log(scores[i].score);
-//	}
-//	
-//}
-
-
-
-
-
-
-
-
+//function to get index of the scores document with smallest homework score
 
 function getIndex(list) {
 	
@@ -93,9 +60,16 @@ function getIndex(list) {
 		
 	}
 	
-	return index
+	return index;
 	
 }
+
+
+
+
+
+
+
 
 
 	
